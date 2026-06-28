@@ -1,0 +1,9 @@
+{
+  "name": "afk-bot",
+  "version": "1.0.0",
+  "description": "Minecraft AFK bot",
+  "main": "bot.js",
+  "dependencies": {
+    "mineflayer": "^4.20.0"
+  }
+}
