@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eclipse SMP вЂ” Minecraft Server</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0a0f;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .bg {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(88, 101, 242, 0.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 50%, rgba(170, 50, 230, 0.10) 0%, transparent 60%),
+        radial-gradient(ellipse at 50% 100%, rgba(30, 30, 60, 0.3) 0%, transparent 50%);
+    }
+    .particles {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .particle {
+      position: absolute;
+      width: 3px; height: 3px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 50%;
+      animation: float linear infinite;
+    }
+    @keyframes float {
+      0% { transform: translateY(100vh) scale(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+    }
+    .container {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 20px;
+      max-width: 600px;
+      width: 100%;
+    }
+    .logo {
+      font-size: 64px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #5865f2, #aa32e6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+      letter-spacing: -2px;
+    }
+    .subtitle {
+      font-size: 18px;
+      color: rgba(255,255,255,0.5);
+      font-weight: 400;
+      margin-bottom: 40px;
+    }
+    .ip-box {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 28px 32px;
+      backdrop-filter: blur(12px);
+      margin-bottom: 24px;
+      transition: border-color 0.3s;
+    }
+    .ip-box:hover { border-color: rgba(88, 101, 242, 0.3); }
+    .ip-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 12px;
+    }
+    .ip-address {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      background: linear-gradient(135deg, #5865f2, #aa32e6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .copy-btn {
+      margin-top: 16px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #fff;
+      padding: 10px 28px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .copy-btn:hover {
+      background: rgba(88, 101, 242, 0.2);
+      border-color: rgba(88, 101, 242, 0.4);
+    }
+    .copy-btn.copied {
+      background: rgba(87, 242, 135, 0.15);
+      border-color: rgba(87, 242, 135, 0.3);
+    }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 40px;
+      padding: 14px 28px;
+      border: 1px solid rgba(255,255,255,0.06);
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 32px;
+    }
+    .status-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #555;
+      transition: background 0.3s;
+    }
+    .status-dot.online { background: #57f287; box-shadow: 0 0 12px rgba(87,242,135,0.4); }
+    .status-dot.offline { background: #ed4245; box-shadow: 0 0 12px rgba(237,66,69,0.3); }
+    .status-dot.loading { background: #fecb2f; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .status-text.online { color: #57f287; }
+    .status-text.offline { color: #ed4245; }
+    .status-text.loading { color: #fecb2f; }
+    .players {
+      font-size: 14px;
+      color: rgba(255,255,255,0.4);
+      margin-top: 4px;
+      font-weight: 400;
+    }
+    .buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #5865f2, #7c3aed);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(88, 101, 242, 0.35);
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #fff;
+    }
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+    }
+    .footer {
+      margin-top: 48px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.2);
+    }
+    .version {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.15);
+      z-index: 1;
+    }
+    @media (max-width: 480px) {
+      .logo { font-size: 42px; }
+      .ip-address { font-size: 22px; }
+      .ip-box { padding: 20px; }
+      .buttons { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="particles" id="particles"></div>
+  <div class="version">Minecraft 1.21</div>
+
+  <div class="container">
+    <div class="logo">Eclipse SMP</div>
+    <div class="subtitle">Р’Р°РЅРёР»СЊРЅС‹Р№ РІС‹Р¶РёРІР°РЅРёРµ СЃРµСЂРІРµСЂ</div>
+
+    <div class="status">
+      <div class="status-dot loading" id="statusDot"></div>
+      <span>
+        <span class="status-text loading" id="statusText">РџСЂРѕРІРµСЂРєР°...</span>
+        <div class="players" id="playersText"></div>
+      </span>
+    </div>
+
+    <div class="ip-box">
+      <div class="ip-label">IP СЃРµСЂРІРµСЂР°</div>
+      <div class="ip-address" id="ipDisplay">eclipsesmpoff.falix.gg</div>
+      <button class="copy-btn" id="copyBtn">рџ“‹ РљРѕРїРёСЂРѕРІР°С‚СЊ IP</button>
+    </div>
+
+    <div class="buttons">
+      <a class="btn btn-primary" href="#">вњЁ Р”РѕР±Р°РІРёС‚СЊ СЃРµСЂРІРµСЂ</a>
+      <a class="btn btn-secondary" href="https://discord.gg" target="_blank">рџ’¬ Discord</a>
+    </div>
+
+    <div class="footer">РЎРґРµР»Р°РЅРѕ СЃ рџ’њ РґР»СЏ Eclipse SMP</div>
+  </div>
+
+  <script>
+    const SERVER_IP = 'eclipsesmpoff.falix.gg'
+    const SERVER_PORT = 25565
+
+    // Particles
+    for (let i = 0; i < 40; i++) {
+      const p = document.createElement('div')
+      p.className = 'particle'
+      p.style.left = Math.random() * 100 + '%'
+      p.style.width = p.style.height = (1 + Math.random() * 4) + 'px'
+      p.style.animationDuration = (8 + Math.random() * 20) + 's'
+      p.style.animationDelay = (Math.random() * 20) + 's'
+      document.getElementById('particles').appendChild(p)
+    }
+
+    // Copy IP
+    const copyBtn = document.getElementById('copyBtn')
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(SERVER_IP)
+        copyBtn.textContent = 'вњ“ РЎРєРѕРїРёСЂРѕРІР°РЅРѕ!'
+        copyBtn.classList.add('copied')
+        setTimeout(() => {
+          copyBtn.textContent = 'рџ“‹ РљРѕРїРёСЂРѕРІР°С‚СЊ IP'
+          copyBtn.classList.remove('copied')
+        }, 2000)
+      } catch {
+        const ta = document.createElement('textarea')
+        ta.value = SERVER_IP
+        document.body.appendChild(ta)
+        ta.select()
+        document.execCommand('copy')
+        ta.remove()
+        copyBtn.textContent = 'вњ“ РЎРєРѕРїРёСЂРѕРІР°РЅРѕ!'
+        copyBtn.classList.add('copied')
+        setTimeout(() => {
+          copyBtn.textContent = 'рџ“‹ РљРѕРїРёСЂРѕРІР°С‚СЊ IP'
+          copyBtn.classList.remove('copied')
+        }, 2000)
+      }
+    })
+
+    // Server status check
+    async function checkStatus() {
+      const dot = document.getElementById('statusDot')
+      const text = document.getElementById('statusText')
+      const players = document.getElementById('playersText')
+
+      dot.className = 'status-dot loading'
+      text.className = 'status-text loading'
+      text.textContent = 'РџСЂРѕРІРµСЂРєР°...'
+      players.textContent = ''
+
+      try {
+        const res = await fetch(`https://api.mcsrvstat.us/3/${SERVER_IP}`)
+        const data = await res.json()
+
+        if (data.online) {
+          dot.className = 'status-dot online'
+          text.className = 'status-text online'
+          text.textContent = 'РћРЅР»Р°Р№РЅ'
+          const pc = data.players ? `${data.players.online}/${data.players.max}` : '?/?'
+          players.textContent = `рџ‘Ґ ${pc} РёРіСЂРѕРєРѕРІ`
+        } else {
+          dot.className = 'status-dot offline'
+          text.className = 'status-text offline'
+          text.textContent = 'РћС„Р»Р°Р№РЅ'
+          players.textContent = ''
+        }
+      } catch {
+        dot.className = 'status-dot offline'
+        text.className = 'status-text offline'
+        text.textContent = 'РќРµ СѓРґР°Р»РѕСЃСЊ РїСЂРѕРІРµСЂРёС‚СЊ'
+        players.textContent = ''
+      }
+    }
+
+    checkStatus()
+    setInterval(checkStatus, 60000)
+  </script>
+</body>
+</html>
