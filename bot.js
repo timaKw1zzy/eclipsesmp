@@ -1,4 +1,5 @@
 const mineflayer = require('mineflayer')
+const http = require('http')
 
 const config = {
   host: process.env.MC_HOST || 'eclipsesmpoff.falix.gg',
@@ -64,3 +65,10 @@ function createBot() {
 }
 
 createBot()
+
+const server = http.createServer((req, res) => {
+  res.writeHead(200)
+  res.end('OK')
+})
+server.listen(process.env.PORT || 3000)
+console.log(`[+] HTTP сервер на порту ${process.env.PORT || 3000}`)
