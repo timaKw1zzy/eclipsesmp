@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Eclipse SMP вЂ” Minecraft Server</title>
+  <title>Eclipse SMP — Minecraft Server</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
   <style>
@@ -215,28 +215,28 @@
 
   <div class="container">
     <div class="logo">Eclipse SMP</div>
-    <div class="subtitle">Р’Р°РЅРёР»СЊРЅС‹Р№ РІС‹Р¶РёРІР°РЅРёРµ СЃРµСЂРІРµСЂ</div>
+    <div class="subtitle">Ванильный выживание сервер</div>
 
     <div class="status">
       <div class="status-dot loading" id="statusDot"></div>
       <span>
-        <span class="status-text loading" id="statusText">РџСЂРѕРІРµСЂРєР°...</span>
+        <span class="status-text loading" id="statusText">Проверка...</span>
         <div class="players" id="playersText"></div>
       </span>
     </div>
 
     <div class="ip-box">
-      <div class="ip-label">IP СЃРµСЂРІРµСЂР°</div>
+      <div class="ip-label">IP сервера</div>
       <div class="ip-address" id="ipDisplay">eclipsesmpoff.falix.gg</div>
-      <button class="copy-btn" id="copyBtn">рџ“‹ РљРѕРїРёСЂРѕРІР°С‚СЊ IP</button>
+      <button class="copy-btn" id="copyBtn">📋 Копировать IP</button>
     </div>
 
     <div class="buttons">
-      <a class="btn btn-primary" href="#">вњЁ Р”РѕР±Р°РІРёС‚СЊ СЃРµСЂРІРµСЂ</a>
-      <a class="btn btn-secondary" href="https://discord.gg" target="_blank">рџ’¬ Discord</a>
+      <a class="btn btn-primary" href="#">✨ Добавить сервер</a>
+      <a class="btn btn-secondary" href="https://discord.gg" target="_blank">💬 Discord</a>
     </div>
 
-    <div class="footer">РЎРґРµР»Р°РЅРѕ СЃ рџ’њ РґР»СЏ Eclipse SMP</div>
+    <div class="footer">Сделано с 💜 для Eclipse SMP</div>
   </div>
 
   <script>
@@ -259,10 +259,10 @@
     copyBtn.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(SERVER_IP)
-        copyBtn.textContent = 'вњ“ РЎРєРѕРїРёСЂРѕРІР°РЅРѕ!'
+        copyBtn.textContent = '✓ Скопировано!'
         copyBtn.classList.add('copied')
         setTimeout(() => {
-          copyBtn.textContent = 'рџ“‹ РљРѕРїРёСЂРѕРІР°С‚СЊ IP'
+          copyBtn.textContent = '📋 Копировать IP'
           copyBtn.classList.remove('copied')
         }, 2000)
       } catch {
@@ -272,10 +272,10 @@
         ta.select()
         document.execCommand('copy')
         ta.remove()
-        copyBtn.textContent = 'вњ“ РЎРєРѕРїРёСЂРѕРІР°РЅРѕ!'
+        copyBtn.textContent = '✓ Скопировано!'
         copyBtn.classList.add('copied')
         setTimeout(() => {
-          copyBtn.textContent = 'рџ“‹ РљРѕРїРёСЂРѕРІР°С‚СЊ IP'
+          copyBtn.textContent = '📋 Копировать IP'
           copyBtn.classList.remove('copied')
         }, 2000)
       }
@@ -289,7 +289,7 @@
 
       dot.className = 'status-dot loading'
       text.className = 'status-text loading'
-      text.textContent = 'РџСЂРѕРІРµСЂРєР°...'
+      text.textContent = 'Проверка...'
       players.textContent = ''
 
       try {
@@ -299,19 +299,19 @@
         if (data.online) {
           dot.className = 'status-dot online'
           text.className = 'status-text online'
-          text.textContent = 'РћРЅР»Р°Р№РЅ'
+          text.textContent = 'Онлайн'
           const pc = data.players ? `${data.players.online}/${data.players.max}` : '?/?'
-          players.textContent = `рџ‘Ґ ${pc} РёРіСЂРѕРєРѕРІ`
+          players.textContent = `👥 ${pc} игроков`
         } else {
           dot.className = 'status-dot offline'
           text.className = 'status-text offline'
-          text.textContent = 'РћС„Р»Р°Р№РЅ'
+          text.textContent = 'Офлайн'
           players.textContent = ''
         }
       } catch {
         dot.className = 'status-dot offline'
         text.className = 'status-text offline'
-        text.textContent = 'РќРµ СѓРґР°Р»РѕСЃСЊ РїСЂРѕРІРµСЂРёС‚СЊ'
+        text.textContent = 'Не удалось проверить'
         players.textContent = ''
       }
     }
