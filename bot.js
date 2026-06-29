@@ -1,28 +1,48 @@
 const mineflayer = require('mineflayer')
 const http = require('http')
 
-const config = {
-  host: process.env.MC_HOST || 'eclipsesmpoff.falix.gg',
-  port: parseInt(process.env.MC_PORT) || 25565,
-  username: process.env.MC_USERNAME || 'AFKBot',
-  version: process.env.MC_VERSION || false
+const PASSWORD = 'qw1qw1qw1'
+const CONFIG = {
+  host: 'eclipsesmpoff.falix.gg',
+  port: 20829,
+  username: 'AFKBot',
+  version: false
+}
+
+let bot = null
+let reconnectTimer = null
+let actionInterval = null
+let lookInterval = null
+
+function cleanup() {
+  if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null }
+  if (actionInterval) { clearInterval(actionInterval); actionInterval = null }
+  if (lookInterval) { clearInterval(lookInterval); lookInterval = null }
+  if (bot) {
+    try { bot.end() } catch (e) {}
+    try { bot.removeAllListeners() } catch (e) {}
+    bot = null
+  }
 }
 
 function createBot() {
-  const bot = mineflayer.createBot(config)
+  cleanup()
+  bot = mineflayer.createBot(CONFIG)
 
   bot.on('login', () => {
-    console.log(`[+] Залогинился как ${bot.username}`)
+    console.log('[+] Залогинился как ' + bot.username)
   })
 
   bot.on('spawn', () => {
     console.log('[+] Бот в игре, AFK режим активен')
 
-    // Дёргаемся каждые 30-60 секунд, чтобы не кикнуло
-    setInterval(() => {
+    setTimeout(() => {
+      bot.chat('/l ' + PASSWORD)
+    }, 3000)
+
+    actionInterval = setInterval(() => {
       const actions = ['forward', 'back', 'left', 'right', 'jump']
       const action = actions[Math.floor(Math.random() * actions.length)]
-
       if (action === 'jump') {
         bot.setControlState('jump', true)
         setTimeout(() => bot.setControlState('jump', false), 500)
@@ -30,37 +50,36 @@ function createBot() {
         bot.setControlState(action, true)
         setTimeout(() => bot.setControlState(action, false), 1000)
       }
-
-      console.log(`[*] Действие: ${action}`)
     }, 30000 + Math.random() * 30000)
 
-    // Смотрим в случайные стороны
-    setInterval(() => {
-      const yaw = Math.random() * Math.PI * 2
-      const pitch = Math.random() * 180 - 90
-      bot.look(yaw, pitch, true)
-      console.log('[*] Поворот головы')
+    lookInterval = setInterval(() => {
+      bot.look(Math.random() * Math.PI * 2, Math.random() * 180 - 90, true)
     }, 40000 + Math.random() * 20000)
   })
 
   bot.on('kicked', (reason) => {
-    console.log(`[-] Кикнуло: ${reason}`)
-    setTimeout(createBot, 5000)
+    console.log('[-] Кикнуло: ' + reason)
+    reconnectTimer = setTimeout(createBot, 5000)
   })
 
   bot.on('error', (err) => {
-    console.log(`[!] Ошибка: ${err.message}`)
-    setTimeout(createBot, 10000)
+    console.log('[!] Ошибка: ' + err.message)
+    reconnectTimer = setTimeout(createBot, 10000)
   })
 
   bot.on('end', () => {
     console.log('[-] Отключился. Переподключаюсь через 10 сек...')
-    setTimeout(createBot, 10000)
+    reconnectTimer = setTimeout(createBot, 10000)
   })
 
   bot.on('message', (jsonMsg) => {
-    const msg = jsonMsg.toString().replace(/§[0-9a-fk-or]/g, '')
-    console.log(`[Чат] ${msg}`)
+    const msg = jsonMsg.toString().replace(/§[0-9a-fk-or]/g, '').toLowerCase()
+    if (msg.includes('register') || msg.includes('/reg')) {
+      bot.chat('/reg ' + PASSWORD + ' ' + PASSWORD)
+    }
+    if (msg.includes('login') || msg.includes('/login')) {
+      bot.chat('/login ' + PASSWORD)
+    }
   })
 }
 
@@ -70,5 +89,4 @@ const server = http.createServer((req, res) => {
   res.writeHead(200)
   res.end('OK')
 })
-server.listen(process.env.PORT || 3000)
-console.log(`[+] HTTP сервер на порту ${process.env.PORT || 3000}`)
+server.listen(process.env.PORT || 7860)
